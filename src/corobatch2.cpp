@@ -1,35 +1,38 @@
 #include <vector>
+#include <optional>
 #include <iostream>
 
-#include <corobatch.h>
+#include <corobatch2.h>
 
-std::vector<int> float_2_int(std::vector<float> args){
-    std::vector<int> ret;
-    for(auto arg : args) {
-        ret.push_back(arg);
+void float_2_int(const std::vector<float>& args, std::vector<std::optional<int>*>& ret){
+    for(std::size_t i = 0; i < args.size(); i++) {
+        ret[i]->emplace(args[i]);
     }
     std::cout << "\nRun f2i with " << args.size();
-    return ret;
+
 }
 
-std::vector<float> int_2_float(std::vector<int> args){
-    std::vector<float> ret;
-    for(auto arg : args) {
-        ret.push_back(arg + 0.5f);
+void int_2_float(const std::vector<int>& args, std::vector<std::optional<float>*>& ret){
+    for(std::size_t i = 0; i < args.size(); i++) {
+        ret[i]->emplace(args[i] + 0.5f);
     }
     std::cout << "\nRun i2f with " << args.size();
-    return ret;
 }
 
+struct GT {
+    template<typename T>
+    bool operator()(const T& v) const {
+        return v.size() >= num_;
+    }
+
+    std::size_t num_;
+};
+
 int main() {
-    using namespace corobatch;
+    using namespace cb2;
     Executor e;
-    Batcher<float, int> f2i{e, float_2_int,[](const std::vector<float>& args) {
-        return args.size() >= 7;
-    }};
-    Batcher<int, float> i2f{e, int_2_float,[](const std::vector<int>& args) {
-        return args.size() >= 5;
-    }};
+    Batcher<float, int, decltype((float_2_int)), GT> f2i{e, float_2_int, GT{7}};
+    Batcher<int, float, decltype((int_2_float)), GT> i2f{e, int_2_float, GT{5}};
     auto task_generator = [&](int i) -> task {
         std::cout << "\nWith " << i;
         int new_i = co_await f2i(0.4f + i);

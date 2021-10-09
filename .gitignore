@@ -1,5 +1,5 @@
 build/
 buildwin/
 .vscode/
-vendor/
+vendored/
 benchmark/
