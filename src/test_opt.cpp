@@ -2,7 +2,7 @@
 #include <optional>
 #include <iostream>
 
-#include <corobatch2.h>
+#include <corobatch_opt.h>
 
 void float_2_int(const std::vector<float>& args, std::vector<std::optional<int>*>& ret){
     for(std::size_t i = 0; i < args.size(); i++) {

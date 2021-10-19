@@ -3,3 +3,4 @@ buildwin/
 .vscode/
 vendored/
 benchmark/
+callgrind.out.*

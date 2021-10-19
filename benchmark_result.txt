@@ -1,0 +1,119 @@
+$ benchmark/benchmark22021-10-11T09:52:05+01:00
+Running benchmark/benchmark2
+Run on (4 X 2700 MHz CPU s)
+CPU Caches:
+  L1 Data 32 KiB (x2)
+  L1 Instruction 32 KiB (x2)
+  L2 Unified 256 KiB (x2)
+  L3 Unified 3072 KiB (x1)
+Load Average: 0.35, 0.49, 0.86
+***WARNING*** CPU scaling is enabled, the benchmark real time measurements may be noisy and will incur extra overhead.
+--------------------------------------------------------------------------------
+Benchmark                                      Time             CPU   Iterations
+--------------------------------------------------------------------------------
+TimedDelay/no_batching                     15207 ns        15197 ns        35730
+TimedDelay/hand_batching                    9909 ns         9909 ns        56435
+TimedDelay/range_batching                   8923 ns         8922 ns        63619
+TimedDelay/coro_batching                   28040 ns        28037 ns        24416
+TimedDelay/coro_batching2                  19516 ns        19514 ns        31800
+TimedDelay/coro_batching2_customalloc      12182 ns        12181 ns        53437
+
+
+$ benchmark/benchmark22021-10-11T09:52:05+01:00
+Running benchmark/benchmark2
+Run on (4 X 2700 MHz CPU s)
+CPU Caches:
+  L1 Data 32 KiB (x2)
+  L1 Instruction 32 KiB (x2)
+  L2 Unified 256 KiB (x2)
+  L3 Unified 3072 KiB (x1)
+Load Average: 0.35, 0.49, 0.86
+***WARNING*** CPU scaling is enabled, the benchmark real time measurements may be noisy and will incur extra overhead.
+--------------------------------------------------------------------------------
+Benchmark                                      Time             CPU   Iterations
+--------------------------------------------------------------------------------
+TimedDelay/no_batching                     15207 ns        15197 ns        35730
+TimedDelay/hand_batching                    9909 ns         9909 ns        56435
+TimedDelay/range_batching                   8923 ns         8922 ns        63619
+TimedDelay/coro_batching                   28040 ns        28037 ns        24416
+TimedDelay/coro_batching2                  19516 ns        19514 ns        31800
+TimedDelay/coro_batching2_customalloc      12182 ns        12181 ns        53437
+
+$ benchmark/benchmark2 --benchmark_min_time=5
+2021-10-11T09:54:40+01:00
+Running benchmark/benchmark2
+Run on (4 X 2700 MHz CPU s)
+CPU Caches:
+  L1 Data 32 KiB (x2)
+  L1 Instruction 32 KiB (x2)
+  L2 Unified 256 KiB (x2)
+  L3 Unified 3072 KiB (x1)
+Load Average: 0.83, 0.57, 0.82
+***WARNING*** CPU scaling is enabled, the benchmark real time measurements may be noisy and will incur extra overhead.
+--------------------------------------------------------------------------------
+Benchmark                                      Time             CPU   Iterations
+--------------------------------------------------------------------------------
+TimedDelay/no_batching                     15118 ns        15117 ns       455522
+TimedDelay/hand_batching                    9849 ns         9849 ns       703259
+TimedDelay/range_batching                   8841 ns         8841 ns       791973
+TimedDelay/coro_batching                   28054 ns        28053 ns       247048
+TimedDelay/coro_batching2                  19454 ns        19453 ns       358601
+TimedDelay/coro_batching2_customalloc      12075 ns        12072 ns       581468
+
+$ benchmark/benchmark2 --benchmark_min_time=5 // with LTO
+2021-10-11T10:06:06+01:00
+Running benchmark/benchmark2
+Run on (4 X 2700 MHz CPU s)
+CPU Caches:
+  L1 Data 32 KiB (x2)
+  L1 Instruction 32 KiB (x2)
+  L2 Unified 256 KiB (x2)
+  L3 Unified 3072 KiB (x1)
+Load Average: 1.56, 1.29, 1.04
+***WARNING*** CPU scaling is enabled, the benchmark real time measurements may be noisy and will incur extra overhead.
+--------------------------------------------------------------------------------
+Benchmark                                      Time             CPU   Iterations
+--------------------------------------------------------------------------------
+TimedDelay/no_batching                     16054 ns        16053 ns       358843
+TimedDelay/hand_batching                   10161 ns        10160 ns       691442
+TimedDelay/range_batching                   8969 ns         8969 ns       744450
+TimedDelay/coro_batching                   29354 ns        29352 ns       237836
+TimedDelay/coro_batching2                  20341 ns        20340 ns       343156
+TimedDelay/coro_batching2_customalloc      12366 ns        12365 ns       562981
+
+$ benchmark/benchmark2 --benchmark_min_time=5 // with LTO
+2021-10-11T10:07:51+01:00
+Running benchmark/benchmark2
+Run on (4 X 2700 MHz CPU s)
+CPU Caches:
+  L1 Data 32 KiB (x2)
+  L1 Instruction 32 KiB (x2)
+  L2 Unified 256 KiB (x2)
+  L3 Unified 3072 KiB (x1)
+Load Average: 0.84, 1.14, 1.01
+***WARNING*** CPU scaling is enabled, the benchmark real time measurements may be noisy and will incur extra overhead.
+--------------------------------------------------------------------------------
+Benchmark                                      Time             CPU   Iterations
+--------------------------------------------------------------------------------
+TimedDelay/no_batching                     17004 ns        16950 ns       446422
+TimedDelay/hand_batching                   10586 ns        10585 ns       655351
+TimedDelay/range_batching                  10273 ns        10273 ns       708859
+TimedDelay/coro_batching                   30490 ns        30488 ns       224300
+TimedDelay/coro_batching2                  20831 ns        20830 ns       340734
+TimedDelay/coro_batching2_customalloc      12546 ns        12545 ns       548914
+
+
+$ benchmark/benchmark2 --benchmark_min_time=10  // With sleep like in the slides
+2021-10-13T09:39:04+01:00
+Running benchmark/benchmark2
+Run on (4 X 2201 MHz CPU s)
+Load Average: 0.52, 0.58, 0.59
+--------------------------------------------------------------------------------
+Benchmark                                      Time             CPU   Iterations
+--------------------------------------------------------------------------------
+TimedDelay/no_batching                1552542192 ns   1293269231 ns           13
+TimedDelay/hand_batching                31055593 ns     26867378 ns          492
+TimedDelay/range_batching               27659573 ns     26520143 ns          664
+TimedDelay/coro_batching                27748863 ns     27011303 ns          564
+TimedDelay/coro_batching2               27661159 ns     26180028 ns          527
+TimedDelay/coro_batching2_customalloc   27680268 ns     26792789 ns          631

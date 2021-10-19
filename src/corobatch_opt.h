@@ -9,12 +9,57 @@
 
 namespace cb2 {
 
+
+/* ========================================================================
+   There are 2 main changes that make this version more performant:
+    - allocations of coroutines
+    - storage of return value
+
+   In this version the promise type is modified to provide a custom
+   new and delete operations, which allocate the coroutine frame
+   in a preallocated buffer.
+   This removes the heap allocation done for each coroutine.
+
+   The second change consists in storing the return value inside the
+   Awaitable returned by the Batcher.
+   This way we don't have to use a shared_ptr to keep the result
+   vector alive, and we can completely remove the usage of the shared_ptr.
+   This is done by keeping a vector of pointers to the storage inside
+   the awaitables. When the function executes, it will place the return
+   values directly in the right location. The memory for the return value
+   will most commonly come from the coroutine frame of the coroutine which
+   awaited the batch.
+   ========================================================================
+*/
 inline std::size_t useless = 0;
 
-struct task {
-    struct promise_type {
-        task get_return_object() {
-            return task(std::coroutine_handle<promise_type>::from_promise(*this));
+// Implement custom allocation inside a buffer
+extern std::array<char, 1'000'000> buffer;
+extern std::size_t offset;
+extern std::size_t allocations;
+
+inline void* my_allocate(std::size_t size) {
+    auto new_offset = offset + size;
+    if(new_offset > buffer.size()) throw std::bad_alloc{};
+    void* ptr = &buffer[offset];
+    offset = new_offset;
+    allocations++;
+    return ptr;
+}
+
+inline void my_deallocate() {
+    allocations--;
+    if (allocations == 0) {
+        offset = 0;
+    }
+}
+
+template<bool custom_alloc = false>
+struct task_impl {
+    template<typename self>
+    struct promise_type_base {
+        task_impl get_return_object() {
+            return task_impl(std::coroutine_handle<self>::from_promise(*static_cast<self*>(this)));
         }
         std::suspend_always initial_suspend() { return {}; }
         void unhandled_exception() noexcept { std::terminate(); }
@@ -26,12 +71,28 @@ struct task {
         std::size_t* counterPtr_ = &useless;
 
     };
+
+    struct no_alloc_promise_type : promise_type_base<no_alloc_promise_type> {};
+
+    struct custom_alloc_promise_type : promise_type_base<custom_alloc_promise_type> {
+        void* operator new(std::size_t size)
+        {
+            return my_allocate(size);
+        }
+
+        void operator delete(void* ptr, std::size_t size)
+        {
+            my_deallocate();
+        }
+    };
+
+    using promise_type = std::conditional_t<custom_alloc, custom_alloc_promise_type, no_alloc_promise_type>;
     using Handle = std::coroutine_handle<promise_type>;
 
-    explicit task(Handle handle) : handle_(handle) {}
-    task(const task&) = delete;
-    task(task&& other) noexcept : handle_(std::exchange(other.handle_, nullptr)) {}
-    ~task() {
+    explicit task_impl(Handle handle) : handle_(handle) {}
+    task_impl(const task_impl&) = delete;
+    task_impl(task_impl&& other) noexcept : handle_(std::exchange(other.handle_, nullptr)) {}
+    ~task_impl() {
         if (handle_) {
             handle_.destroy();
         }
@@ -46,12 +107,15 @@ private:
     Handle handle_;
 };
 
+using task = task_impl<false>;
+
 struct Executor {
     void submit(std::vector<std::coroutine_handle<>> v) {
         pending_.insert(pending_.end(), v.begin(), v.end());
     }
 
-    void submit(task t) {
+    template<typename Task>
+    void submit(Task t) {
         non_completed_++;
         auto handle = std::move(t).release();
         handle.promise().counterPtr_ = &non_completed_;
